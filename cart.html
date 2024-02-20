@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="cart.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="main.js"></script>
+</head>
+<style>
+    .coupon-component {
+        padding: 1rem 1.5rem;
+
+        .coupon-container {
+            padding: 0.5rem;
+            border: 1px solid #8871E6;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 4fr 1fr;
+            box-shadow: 2px 0px 4px 1px #00000045;
+
+
+            input {
+                border-radius: 10px;
+                border: none;
+                font-family: "Plus Jakarta Sans";
+
+            }
+
+            .btn {
+                color: #FFFFFF;
+                border-radius: 5px;
+                border: none;
+                background: linear-gradient(#8871E6 100%, #5C46B7 100%);
+                padding: 0.5rem 1.5rem;
+                font-family: "Plus Jakarta Sans";
+            }
+        }
+    }
+</style>
+
+<body>
+    <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div>
+    <header>
+        <div class="search-bar">
+            <div class="heading">Cart</div>
+        </div>
+    </header>
+
+    <div class="test-container" id="shimmerDiv">
+        <div class="shimmer" style="min-height: 8rem;"></div>
+        <div class="shimmer" style="min-height: 8rem;"></div>
+        <div class="shimmer" style="min-height: 8rem;"></div>
+    </div>
+    <div class="test-container" id="testContainer">
+        <!-- <div class="test">
+            <div class="text">
+                <div class="test-name">
+                    Test Name
+                </div>
+                <div class="test-description">
+                    Lorem ipsum dolor sit adipisicing elit. Placeat, sint?
+                </div>
+            </div>
+            <div class="buttons">
+                <div class="add-btn">
+                    <button>-</button>
+                </div>
+                <div class="price">
+                    $500
+                </div>
+            </div>
+        </div>-->
+    </div>
+
+    <div class="coupon-component">
+        <div class="coupon-container">
+            <input type="text" placeholder="Coupon Code" id="code">
+            <button class="btn" onclick="applyCoupon()">Apply</button>
+        </div>
+        <div id="text"></div>
+    </div>
+
+    <div class="added-to-cart-container">
+        <button class="btn" onclick="SelectPatient()">Confirm Booking</button>
+    </div>
+
+
+    <script>
+        var cartTotal = 0;
+        function SelectPatient() {
+            setCookie('amount', cartTotal);
+            document.getElementById('loader-overlay').style.display = 'flex';
+            window.location.href = "selectpatient.html";
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Retrieve the cart items from localStorage
+            document.getElementById('loader-overlay').style.display = 'flex';
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            var tests = "";
+            // Display the cart items on the cart page
+            const cartItemsContainer = document.getElementById('testContainer');
+
+            cartItems.forEach(item => {
+                tests += item.name + " ";
+                const itemElement = `
+                <div class="test" id="${item.id}">
+                    <div class="text">
+                        <div class="test-name">
+                              ${item.name}
+                        </div>
+                    <div class="test-description">
+                        ${item.description}
+                    </div>
+                    </div>
+                        <div class="buttons">
+                            <div class="add-btn" onclick="removeFromCart(${item.id})">
+                                <button>-</button>
+                            </div>
+                        <div class="price" id="price${item.id}">
+                            ${item.price}
+                        </div>
+                    </div>
+                </div>`
+
+                cartTotal += parseInt(item.price);
+                // console.log(cartTotal);
+
+                // cartItemsContainer.appendChild(itemElement);
+                cartItemsContainer.innerHTML += itemElement;
+            });
+            setCookie('tests', tests);
+            document.getElementById('loader-overlay').style.display = 'none';
+            document.getElementById('testContainer').style.visibility = 'visible';
+            document.getElementById('shimmerDiv').style.display = 'none';
+
+        });
+
+        function removeFromCart(itemId) {
+            // Retrieve the cart items from localStorage
+            cartTotal -= parseInt(document.getElementById('price' + itemId).innerText);
+            console.log(cartTotal);
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Find the index of the item to be removed
+            const itemIndex = cartItems.findIndex(item => item.id === itemId);
+
+            if (itemIndex !== -1) {
+                // Remove the item from the cart array
+                cartItems.splice(itemIndex, 1);
+
+                // Save the updated cart items back to localStorage
+                localStorage.setItem('cart', JSON.stringify(cartItems));
+
+                // Refresh the cart display
+                refreshCartDisplay();
+            }
+        }
+
+        function refreshCartDisplay() {
+            // Clear the current cart display
+            document.getElementById('loader-overlay').style.display = 'flex';
+            const cartItemsContainer = document.getElementById('testContainer');
+
+            cartItemsContainer.innerHTML = '';
+
+            // Retrieve the updated cart items from localStorage
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Display the updated cart items on the cart page
+            cartItems.forEach(item => {
+                const itemElement = `
+                <div class="test" id="${item.id}">
+                    <div class="text">
+                        <div class="test-name">
+                              ${item.name}
+                        </div>
+                    <div class="test-description">
+                        ${item.description}
+                    </div>
+                    </div>
+                        <div class="buttons">
+                            <div class="add-btn" onclick="removeFromCart(${item.id})">
+                                <button>-</button>
+                            </div>
+                        <div class="price">
+                            ${item.price}
+                        </div>
+                    </div>
+                </div>`
+
+                // cartItemsContainer.appendChild(itemElement);
+                cartItemsContainer.innerHTML += itemElement;
+            });
+            document.getElementById('loader-overlay').style.display = 'none';
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById('code').value;
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch("https://developer.dreamdevinfotech.com/jl-lab/coupons.php?route=apply_coupon&code=" + code, requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    showDiscount(result);
+                })
+                .catch((error) => console.error(error));
+        }
+        function showDiscount(result) {
+            const text = document.getElementById('text');
+            if (result.count == 0) {
+                text.innerHTML = `<div style="color:red; padding:0.5rem 0;"> Invalid Coupon Code </div>`
+            }
+            else if (cartTotal >= result.data[0]['minimum_order_value']) {
+                setCookie('discount', result.data[0]['flat_discount']);
+                text.innerHTML = `<div style="color:green; padding:0.5rem 0;">Flat Discount of ${result.data[0]['flat_discount']} Applied</div>`
+            }
+            else {
+                text.innerHTML = `<div style="color:red; padding:0.5rem 0;"> Your Cart total is less than ${result.data[0]['minimum_order_value']}</div>`
+            }
+        }
+    </script>
+</body>
+
+</html>

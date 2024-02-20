@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/SignUp</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div>
+
+    <header>
+        <nav class="navbar">
+            <div class="title">
+                <div class="blue">Dream</div>Lab
+            </div>
+            <button class="btn">Contact Support</button>
+        </nav>
+    </header>
+
+    <div class="first-page">
+        <div class="form">
+            <div class="head">
+                Login/Sign Up
+            </div>
+            <div>login or signup using mobile and OTP</div>
+            <div class="google-login-section" id="gLogin">
+                <button type="button" id="google-login" name="google-login"
+                    class="btn btn-danger btn-lg btn-block w-100 rounded" style="border-radius: 10px;"><i
+                        class="fa-brands fa-google"></i> Login with Google</button>
+
+                <div style="margin: 1rem 0;">
+                    <div class="divider">
+                        <div class="left"></div>
+                        <div class="mid">OR</div>
+                        <div class="right"></div>
+                    </div>
+                    <div onclick="hospitalLogin()" style="color: blue;">Hospital Login</div>
+                </div>
+            </div>
+            <div class="boxes" id="customLogin">
+                <div id="warning"></div>
+                <input type="email" class="box" name="" id="email" placeholder="Email Address">
+                <input type="text" class="box" id="password" placeholder="Password">
+                <div style="margin: 1rem 0;">
+                    <div class="divider">
+                        <div class="left"></div>
+                        <div class="mid">OR</div>
+                        <div class="right"></div>
+                    </div>
+                    <div onclick="gLogin()" style="color: blue;">Common User Login</div>
+                </div>
+                <button class="btn" onclick="login()">Login</button>
+            </div>
+        </div>
+    </div>
+    <div class="lower-btn">
+        <!-- <button class="btn">Continue</button> -->
+    </div>
+
+
+
+    <!-- <script src="../main.js"></script> -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-analytics.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvGrsp8BktZ6V7Hfzr3mcOS5yjgLybquI",
+            authDomain: "medneet-246cb.firebaseapp.com",
+            projectId: "medneet-246cb",
+            storageBucket: "medneet-246cb.appspot.com",
+            messagingSenderId: "269580574028",
+            appId: "1:269580574028:web:4f63a73f6f989525ee03e9",
+            measurementId: "G-PB5QP02QLW"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth();
+        const db = firebase.firestore();
+
+        const provider = new GoogleAuthProvider();
+
+        //----- Google login code start	  
+        document.getElementById("google-login").addEventListener("click", function () {
+            document.getElementById('loader-overlay').style.display = "flex";
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    // This gives you a Google Access Token. You can use it to access the Google API.
+                    const credential = GoogleAuthProvider.credentialFromResult(result);
+                    const token = credential.accessToken;
+                    const user = result.user;
+                    // alert("Welcome " + user.displayName);
+                    // console.log(user);
+                    setCookie("uid", user.uid, 3);
+                    window.location.href = "home.html";
+                }).catch((error) => {
+                    // Handle Errors here.
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.log(errorMessage);
+                    // The email of the user's account used.
+                    const email = error.customData.email;
+                    // The AuthCredential type that was used.
+                    const credential = GoogleAuthProvider.credentialFromError(error);
+                    // ...
+                });
+        });
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+    </script>
+    <script>
+        function hospitalLogin() {
+            document.getElementById('gLogin').style.display = 'none';
+            document.getElementById('customLogin').style.display = 'grid';
+
+        }
+        function gLogin() {
+            document.getElementById('gLogin').style.display = 'grid';
+            document.getElementById('customLogin').style.display = 'none';
+        }
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            // const email = 'hospital_test@gmail.com';
+            // const password = 'Hello@%23123';
+
+            if (email.length > 0 && password.length >= 8) {
+
+                const requestOptions = {
+                    method: "GET",
+                    redirect: "follow"
+                };
+
+                fetch("https://developer.dreamdevinfotech.com/jl-lab/hospitals.php?route=login_hospital&email=" + email + "&password=" + password, requestOptions)
+                    .then((response) => response.json())
+                    .then((result) => {
+                        document.getElementById('loader-overlay').style.display = "flex";
+
+                        setCookie('uid', result.data[0].uid);
+                        setCookie('show_price', result.data[0].show_price);
+                        window.location.href = "home.html";
+
+                    })
+                    .catch((error) => console.error(error));
+            }
+            else {
+                document.getElementById('warning').innerText = "* Invalid Credentials"
+            }
+            document.getElementById('loader-overlay').style.display = "none";
+        }
+
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+    </script>
+</body>
+
+</html>

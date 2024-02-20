@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="cart.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="main.js"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSon1qM9sp3EyAzfrnDYP51n8LZ8JCQO4&libraries=places"></script>
+
+
+</head>
+<style>
+    body {
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        margin: auto;
+        font-family: "Plus Jakarta Sans";
+    }
+
+    .loading {
+        border: 5px solid rgba(131, 129, 129, 0.3);
+        border-radius: 50%;
+        border-top: 5px solid #7C3EE0;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 45%;
+        z-index: 1000;
+        transform: translate(-50%, -50%);
+    }
+
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(25, 28, 37, 0.9);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        /* Ensure it's on top of other content */
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    header {
+
+        .search-bar {
+
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 2px 4px 2px #00000045;
+            display: grid;
+            z-index: 1000;
+            background-color: #fff;
+
+
+            .heading {
+                font-size: 1.3rem;
+                font-weight: bold;
+                font-family: "Plus Jakarta Sans";
+                text-align: center;
+            }
+        }
+    }
+
+    .map {
+        width: 100%;
+        min-height: 90vh;
+        position: absolute;
+        top: 2rem;
+        /* margin-top: -1rem; */
+        z-index: -1;
+    }
+
+    .form {
+        padding: 1rem 1.5rem;
+        display: grid;
+        gap: 0.5rem;
+        background: transparent;
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        bottom: 9vh;
+
+        input {
+            padding: 1.1rem;
+            border: 1px solid #8871E6;
+            border-radius: 10px;
+            font-family: "Plus Jakarta Sans";
+
+        }
+    }
+
+    .added-to-cart-container {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        /* margin-top: 8rem; */
+        display: flex;
+        padding: 1rem 1.2rem;
+        background-color: #fff;
+        z-index: 1000;
+        box-shadow: 2px 0px 8px 2px #00000045;
+
+
+        .btn {
+            color: #FFFFFF;
+            border-radius: 5px;
+            border: none;
+            width: 100%;
+            background: linear-gradient(#8871E6 100%, #5C46B7 100%);
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: "Plus Jakarta Sans";
+        }
+    }
+</style>
+
+<body>
+    <!-- <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div> -->
+    <header>
+        <div class="search-bar">
+            <div class="heading">Location</div>
+        </div>
+    </header>
+    <div class="map" id="map">
+
+    </div>
+    <div class="form">
+        <input type="text" placeholder="Address" id="address-input">
+        <input type="text" placeholder="Landmark">
+    </div>
+
+
+    <div class="added-to-cart-container">
+        <button class="btn" onclick="completed()">Confirm Location</button>
+    </div>
+
+
+    <script>
+        var latitude = 0;
+        var longitude = 0;
+        initMap();
+
+        // Function to initialize the map with user's current location
+        function initMap() {
+            // Check if geolocation is supported
+            if (navigator.geolocation) {
+                // Get user's current position
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    // Get latitude and longitude
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    latitude = lat;
+                    longitude = lng;
+
+                    // Log coordinates
+                    console.log("Latitude: " + lat + ", Longitude: " + lng);
+
+                    // Create map centered at user's location
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                        center: { lat: lat, lng: lng },
+                        zoom: 10
+                    });
+
+                    // Create a marker at user's location
+                    var marker = new google.maps.Marker({
+                        position: { lat: lat, lng: lng },
+                        map: map,
+                        draggable: true // Allow marker to be dragged
+                    });
+
+                    // Add event listener for marker dragend event
+                    google.maps.event.addListener(marker, 'dragend', function (event) {
+                        // Get updated marker position
+                        var newLat = event.latLng.lat();
+                        var newLng = event.latLng.lng();
+                        latitude = newLat;
+                        longitude = newLng;
+
+                        // Log updated coordinates
+                        console.log("New Latitude: " + newLat + ", New Longitude: " + newLng);
+                    });
+                });
+            } else {
+                // Geolocation is not supported by this browser
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+
+        document.getElementById('address-input').addEventListener('change', function () {
+            console.log(document.getElementById('address-input').value);
+            setCookie('address', document.getElementById('address-input').value);
+        })
+        // addBooking();
+        function addBooking() {
+            // const uid = getCookie('uid');
+            const uid = 'demo';
+            const patient_id = getCookie('patient_id');
+            const is_paid = "1,2,3,";
+            const p_mode = "cash";
+            const amount = getCookie('amount');
+            const mobile = getCookie('phone');
+            const discount = getCookie('discount');
+            const slot = "12/12/12 9:30CM"
+            const patient_name = "hariom";
+            const address = "12/50, Delhi NCR, Near Mohala.";
+            const tests = getCookie('tests');
+
+            // var latitude = "12.256.345.25";
+            // var longitude = "12.256.345.25";
+            if (latitude != 0 && longitude != 0) {
+                const requestOptions = {
+                    method: "GET",
+                    redirect: "follow"
+                };
+
+                fetch("https://developer.dreamdevinfotech.com/jl-lab/bookings.php?route=add_booking&uid=" + uid + "&patient_id=" + patient_id + "&tests=" + tests + "&is_paid=" + is_paid + "&payment_mode=" + p_mode + "&amount=" + amount + "&discount=" + discount + "&prescription=none&slot=" + slot + "&address=" + address + "&latitude=" + latitude + "&longitude=" + longitude + "&patient_name=" + patient_name + "&patient_mobile=" + mobile, requestOptions)
+                    .then((response) => response.text())
+                    .then((result) => console.log(result))
+                    .catch((error) => console.error(error));
+
+                // document.getElementById('loader-overlay').style.display = 'flex';
+                window.location.href = "completed.html";
+            }
+            else {
+                alert("location not selected");
+            }
+
+        }
+
+        initMap();
+        function completed() {
+            addBooking();
+        }
+    </script>
+</body>
+
+</html>

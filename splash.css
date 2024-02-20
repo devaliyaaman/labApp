@@ -1,0 +1,108 @@
+body {
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    max-width: 800px;
+    margin: auto;
+}
+
+.first-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    height: 85vh;
+    padding: 0 1.2rem;
+    /* border: 1px solid black; */
+
+    img {
+        max-width: 90%;
+        margin: 0;
+        align-self: center;
+        padding: 1rem;
+        margin-top: -2rem;
+        /* border: 1px solid black; */
+    }
+
+    .content {
+        margin-top: -2rem;
+        display: grid;
+        padding: 0 1.5rem;
+        gap: 0.5rem;
+        font-family: "Plus Jakarta Sans";
+        /* border: 1px solid black; */
+
+        .head {
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: "Plus Jakarta Sans";
+            /* border: 1px solid black; */
+        }
+    }
+}
+
+.lower-btn {
+    bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+    height: 15vh;
+    justify-content: center;
+    /* border: 1px solid black; */
+
+    .btn {
+        width: 100%;
+        font-size: 1.2rem;
+        margin: auto;
+        color: #FFFFFF;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(#8871E6 100%, #5C46B7 100%);
+        padding: 1rem;
+        box-shadow: inset;
+        font-family: "Plus Jakarta Sans";
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    .first-page{
+        height: 70vh;
+        padding-top: 5vh;
+        padding-bottom: 0;
+    }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+    .first-page{
+        height: 70vh;
+        padding-top: 5vh;
+        padding-bottom: 0;
+    }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+    .first-page{
+        height: 70vh;
+        padding-top: 5vh;
+        padding-bottom: 0;
+    }
+
+    .lower-btn{
+        padding: 0 2rem;
+    }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+    .first-page{
+        height: 70vh;
+        padding-top: 5vh;
+        padding-bottom: 0;
+    }
+    .lower-btn{
+        padding: 0 3rem;
+    }
+}

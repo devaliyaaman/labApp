@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="stylesheet" href="splash.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="../main.js"></script>
+
+</head>
+
+<body>
+    <div class="first-page">
+        <img src="scientist.png" alt="">
+        <div class="content">
+            <div class="head">Welcome to Dream Lab!</div>
+            Get Lab tests at your Doorstep and along with test reports
+        </div>
+    </div>
+    <div class="lower-btn">
+        <button class="btn" onclick="goToLogin()">Get Started</button>
+    </div>
+
+    <script>
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
+        function goToLogin() {
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+
+</html>

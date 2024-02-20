@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories</title>
+    <link rel="stylesheet" href="categories.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="main.js"></script>
+
+</head>
+<style>
+    .cover {
+        min-height: 100vh;
+    }
+</style>
+
+<body>
+    <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div>
+    <div class="cover">
+        <header>
+            <div class="search-bar">
+                <div class="search-box">
+                    <input type="search" name="" id="searchInput" placeholder="Search in Heart">
+                    <img src="icons8-search-90 1.png" onclick="fetchTests()" alt="">
+                </div>
+            </div>
+        </header>
+
+        <div class="test-container" id="shimmerDiv">
+            <div class="shimmer" style="min-height: 8rem;"></div>
+            <div class="shimmer" style="min-height: 8rem;"></div>
+            <div class="shimmer" style="min-height: 8rem;"></div>
+        </div>
+        <div class="test-container" id="testContainer"></div>
+
+        <div class="added-to-cart-container">
+            <div class="content">
+                <span id="cnt">0 Tests</span>
+                <a href="../cart/cart.html" onclick="goToCart()">View Details</a>
+            </div>
+            <button class="btn" onclick="addPatientDetails()">Add Patient Details</button>
+        </div>
+    </div>
+
+    <script>
+        var testCount = 0;
+        var query = "";
+        fetchTests();
+        async function fetchTests() {
+            query = document.getElementById('searchInput').value;
+            document.getElementById('loader-overlay').style.display = 'block';
+
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+            // const id = getCookie("category_id");
+            const id = 1;
+
+            fetch("https://developer.dreamdevinfotech.com/jl-lab/tests.php?route=list_tests&category_id=" + id, requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    // console.log(result);
+                    showTests(result.data, query);
+                })
+                .catch((error) => console.error(error));
+            document.getElementById('loader-overlay').style.display = 'none';
+
+        }
+        function showTests(responseData, query) {
+            const data = filterResults(query, responseData);
+            const container = document.getElementById('testContainer');
+            container.innerHTML = "";
+
+            if (data.length == 0) {
+                container.innerHTML = '<div style="color:red;"> No tests found</div> '
+            }
+            else {
+
+                data.forEach(item => {
+                    const test = `
+                <div class="test" id="${item.id}">
+                    <div class="text">
+                        <div class="test-name" id="testName${item.id}">
+                            ${item.name}
+                        </div>
+                        <div class="test-description" id="testDescription${item.id}">
+                            Lorem ipsum dolor sit adipisicing elit. Placeat, sint?
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <div class="add-btn" id="add${item.id}" onclick="addToCart(${item.id})">
+                            <button>+</button>
+                        </div>
+                        <div class="add-btn" id="remove${item.id}" onclick="removeFromCart(${item.id})" style="display:none">
+                            <button class="minus">-</button>
+                        </div>
+                        <div class="price" id="testPrice${item.id}">
+                            ${item.price}
+                        </div>
+                    </div>
+                </div>`
+
+                    container.innerHTML += test;
+                });
+            }
+            document.getElementById('testContainer').style.visibility = 'visible';
+            document.getElementById('shimmerDiv').style.display = 'none';
+
+        }
+        function filterResults(query, data) {
+            return data.filter(item => item.name.toLowerCase().includes(query.toLowerCase()));
+        }
+        function addPatientDetails() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+            window.location.href = "selectpatient.html"
+        }
+        function goToCart() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+            window.location.href = "cart.html"
+        }
+
+        function addToCart(itemId) {
+            // Retrieve the cart items from localStorage or initialize an empty array
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Check if the item is already in the cart
+            const existingItem = cartItems.find(item => item.id === itemId);
+
+            const testName = document.getElementById("testName" + itemId).innerHTML;
+            const testPrice = document.getElementById("testPrice" + itemId).innerHTML;
+            const testDescription = document.getElementById("testDescription" + itemId).innerHTML;
+
+            if (!existingItem) {
+                cartItems.push({ id: itemId, name: testName, price: testPrice, description: testDescription });
+            } else {
+            }
+
+            // Save the updated cart items back to localStorage
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+
+            // Optionally, you can redirect the user to the cart page or provide some feedback
+            // alert('Item added to the cart!');
+            document.getElementById('remove' + itemId).style.display = "block";
+            document.getElementById('add' + itemId).style.display = "none";
+
+            testCount++;
+            document.getElementById('cnt').innerHTML = testCount + " Tests";
+        }
+
+        function removeFromCart(itemId) {
+            // Retrieve the cart items from localStorage
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Find the index of the item to be removed
+            const itemIndex = cartItems.findIndex(item => item.id === itemId);
+
+            if (itemIndex !== -1) {
+                // Remove the item from the cart array
+                cartItems.splice(itemIndex, 1);
+
+                // Save the updated cart items back to localStorage
+                localStorage.setItem('cart', JSON.stringify(cartItems));
+            }
+
+            document.getElementById('remove' + itemId).style.display = "none";
+            document.getElementById('add' + itemId).style.display = "block";
+
+            testCount--;
+            document.getElementById('cnt').innerHTML = testCount + " Tests";
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Patient</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="main.js"></script>
+
+</head>
+<style>
+    body {
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        max-width: 800px;
+        margin: auto;
+        font-family: "Plus Jakarta Sans";
+    }
+
+    .loading {
+        border: 5px solid rgba(131, 129, 129, 0.3);
+        border-radius: 50%;
+        border-top: 5px solid #7C3EE0;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 45%;
+        z-index: 1000;
+        transform: translate(-50%, -50%);
+    }
+
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(25, 28, 37, 0.9);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        /* Ensure it's on top of other content */
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    .shimmer {
+        position: relative;
+        overflow: hidden;
+        border: none;
+    }
+
+    .remove-shimmer {
+        display: none;
+    }
+
+    .shimmer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -200%;
+        width: 400%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #c3cadb);
+    }
+
+    header {
+
+        .search-bar {
+            padding: 1.2rem 1.5rem 1rem 1.5rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 2px 4px -2px #00000045;
+            display: grid;
+
+
+            .heading {
+                font-size: 1.3rem;
+                font-weight: bold;
+                font-family: "Plus Jakarta Sans";
+                text-align: center;
+            }
+
+            .search-box {
+                display: flex;
+                border-radius: 10px;
+                width: 100%;
+                border: 1px solid #DADADA;
+                margin: 0.75rem 0;
+
+                input {
+                    padding: 1rem 0.5rem;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 1.2rem;
+                    background-color: transparent;
+                    width: 85%;
+
+                }
+
+                i {
+                    margin: auto;
+                    padding: 0.5rem;
+                    font-size: 1.5rem;
+                    color: #7C3EE0;
+                }
+            }
+        }
+    }
+
+    .bookings {
+        padding: 1rem 1.5rem;
+        display: grid;
+        gap: 0.5rem;
+
+        .booking {
+            position: relative;
+            padding: 1.6rem 1rem 1rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border-radius: 10px;
+            box-shadow: 2px 0px 8px 0px #00000045;
+            color: #858585;
+
+            .status {
+                position: absolute;
+                padding: 0.45rem 1rem;
+                color: #fff;
+                top: 0;
+                right: 0;
+                background-color: #8871E6;
+                width: fit-content;
+                border-radius: 0 10px 0 10px;
+            }
+
+            .booking-code {
+                color: black;
+                font-size: 1.2rem;
+                font-weight: 550;
+            }
+        }
+    }
+    #bookings{
+        visibility: hidden;
+    }
+</style>
+
+<body>
+    <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div>
+    <header>
+        <div class="search-bar">
+            <div class="heading">My Bookings</div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by patient name or phone">
+                <i class="fa-solid fa-magnifying-glass" onclick="searchBooking()"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="bookings" id="shimmerDiv">
+        <div class="shimmer" style="min-height: 5rem;"></div>
+        <div class="shimmer" style="min-height: 5rem;"></div>
+        <div class="shimmer" style="min-height: 5rem;"></div>
+    </div>
+    <div class="bookings" id="bookings"></div>
+
+
+    <script>
+        var query = "";
+        fetchBookings();
+        function fetchBookings() {
+            // const uid = getCookie('uid');
+            const uid = "demo";
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch("https://developer.dreamdevinfotech.com/jl-lab/bookings.php?route=list_bookings&uid=" + uid, requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    // console.log(result);
+                    showBookings(result.data);
+                })
+                .catch((error) => console.error(error));
+                
+            document.getElementById('loader-overlay').style.display = 'none';
+
+        }
+
+        function showBookings(data) {
+            const bookings = document.getElementById('bookings');
+            bookings.innerHTML = "";
+
+
+            if (data.length == 0) {
+                bookings.innerHTML = "No results found";
+            }
+            else {
+
+                data.forEach((item) => {
+                    const booking = `
+                        <div class="booking" id="${item.id}">
+                            <div class="status">
+                                ${item.status}
+                            </div>
+                            <div class="booking-code">
+                                ${item['patient_name']}
+                            </div>
+                            You have Booked ${item.tests} tests on ${item['created_at']}
+                        </div>`
+
+                    bookings.innerHTML += booking;
+                });
+            }
+            document.getElementById('bookings').style.visibility = 'visible';
+            document.getElementById('shimmerDiv').style.display = 'none';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function () {
+            // Get the value from the input field
+            query = this.value.trim(); // Trim any leading or trailing whitespace
+
+            // Call the search function
+            if (query === "") {
+                fetchBookings(); // If the query is empty, fetch all bookings
+            } else {
+                searchBooking(); // Otherwise, perform the search
+            }
+        });
+
+        function searchBooking() {
+            query = document.getElementById('searchInput').value;
+            if (query == "") fetchBookings();
+            var name = "";
+            var num = "";
+            // const isNumber = query => !isNaN(Number(query));
+            // if (isNumber) {
+            // num = query;
+            // }
+            // else {
+            name = query;
+            // }
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch("https://developer.dreamdevinfotech.com/jl-lab/bookings.php?route=search_booking&patient_name=" + name + "&patient_mobile=" + num, requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    showBookings(result.data);
+                })
+                .catch((error) => console.error(error));
+        }
+    </script>
+</body>
+
+</html>

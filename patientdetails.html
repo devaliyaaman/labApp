@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="main.js"></script>
+
+</head>
+<style>
+    body {
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        max-width: 800px;
+        margin: auto;
+        font-family: "Plus Jakarta Sans";
+    }
+
+    .loading {
+        border: 5px solid rgba(131, 129, 129, 0.3);
+        border-radius: 50%;
+        border-top: 5px solid #7C3EE0;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 45%;
+        z-index: 1000;
+        transform: translate(-50%, -50%);
+    }
+
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(25, 28, 37, 0.9);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        /* Ensure it's on top of other content */
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    header {
+
+        .search-bar {
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 2px 4px -2px #00000045;
+            display: grid;
+
+
+            .heading {
+                font-size: 1.3rem;
+                font-weight: bold;
+                font-family: "Plus Jakarta Sans";
+                text-align: center;
+            }
+        }
+    }
+
+    .form {
+        padding: 1rem 1.5rem;
+        display: grid;
+        gap: 0.5rem;
+
+        input,
+        select {
+            padding: 1rem;
+            border: 1px solid #8871E6;
+            border-radius: 10px;
+        }
+    }
+
+    .added-to-cart-container {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        display: flex;
+        padding: 1rem 1.2rem;
+        background-color: #fff;
+        z-index: 300;
+        box-shadow: 2px 0px 8px 2px #00000045;
+
+
+        .btn {
+            color: #FFFFFF;
+            border-radius: 5px;
+            border: none;
+            width: 100%;
+            background: linear-gradient(#8871E6 100%, #5C46B7 100%);
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: "Plus Jakarta Sans";
+        }
+    }
+
+    @media only screen and (min-width: 768px) {
+        header {
+            .search-bar {
+                padding: 1.6rem;
+            }
+        }
+
+        .form {
+            gap: 1rem;
+
+            input {
+                padding: 1.25rem;
+            }
+        }
+
+        .added-to-cart-container {
+            position: absolute;
+            bottom: 0;
+            min-width: 768px;
+            max-width: 800px;
+            margin: auto;
+        }
+    }
+</style>
+
+<body>
+    <!-- <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div> -->
+    <header>
+        <div class="search-bar">
+            <div class="heading">Patient Details</div>
+        </div>
+    </header>
+
+    <div class="form">
+        <input type="text" placeholder="Name" id="name">
+        <input type="number" placeholder="Age" id="age">
+        <select name="se" id="sex">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="transgender">Rather not to say</option>
+        </select>
+        <input type="text" placeholder="Referring Doctor Name" id="ref_doc">
+        <input type="datetime" placeholder="Select Date/Time for Collection">
+        <input type="tel" placeholder="Alternate Number" id="phone">
+        <input type="email" placeholder="email" id="email">
+        <input type="text" placeholder="Select Location">
+    </div>
+
+
+    <div class="added-to-cart-container">
+        <button class="btn" onclick="addPatient()">Confirm</button>
+    </div>
+
+
+    <script>
+        // document.getElementById('loader-overlay').style.display = 'none';
+        function addPatient() {
+            const uid = getCookie('uid');
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const age = document.getElementById('age').value;
+            const sex = document.getElementById('sex').value;
+            const email = document.getElementById('email').value;
+            const ref_doc = document.getElementById('ref_doc').value;
+
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch("https://developer.dreamdevinfotech.com/jl-lab/patients.php?route=add_patient&uid=" + uid + "&name=" + name + "&sex=" + sex + "&refering_doctor=" + ref_doc + "&mobile=" + phone + "&email=" + email + "&age=" + age, requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    if (result.success) {
+                        goToCart();
+                    }
+                })
+                .catch((error) => console.error(error));
+        }
+        function goToCart() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+            window.location.href = "selectpatient.html";
+        }
+    </script>
+</body>
+
+</html>

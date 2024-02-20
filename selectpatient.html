@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Patient</title>
+    <link rel="stylesheet" href="cart.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="main.js"></script>
+
+</head>
+<style>
+    body {
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        max-width: 800px;
+        min-height: 100vh;
+        margin: auto;
+        font-family: "Plus Jakarta Sans";
+    }
+
+    .loading {
+        border: 5px solid rgba(131, 129, 129, 0.3);
+        border-radius: 50%;
+        border-top: 5px solid #7C3EE0;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 45%;
+        z-index: 1000;
+        transform: translate(-50%, -50%);
+    }
+
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(25, 28, 37, 0.9);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10001;
+        /* Ensure it's on top of other content */
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    .shimmer {
+        position: relative;
+        overflow: hidden;
+        border: none;
+    }
+
+    .remove-shimmer {
+        display: none;
+    }
+
+    .shimmer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -200%;
+        width: 400%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #c3cadb);
+    }
+
+    header {
+
+        .search-bar {
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 2px 4px -2px #00000045;
+            display: grid;
+
+
+            .heading {
+                font-size: 1.3rem;
+                font-weight: bold;
+                font-family: "Plus Jakarta Sans";
+                text-align: center;
+            }
+        }
+    }
+
+    .patients {
+        padding: 1rem 1.5rem;
+        display: grid;
+        gap: 0.5rem;
+
+        .patient {
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            font-weight: 500;
+            justify-content: space-between;
+            box-shadow: 2px 0px 4px 0px #00000045;
+
+            input[type=checkbox] {
+                padding: 2px;
+            }
+        }
+
+        .btn {
+            color: #FFFFFF;
+            border-radius: 5px;
+            border: none;
+            width: 100%;
+            align-self: center;
+            background-color: #858585;
+            width: fit-content;
+            margin: 1rem auto;
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: "Plus Jakarta Sans";
+        }
+    }
+
+
+
+
+    .added-to-cart-container {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        display: flex;
+        padding: 1rem 1.2rem;
+        background-color: #fff;
+        z-index: 1000;
+        box-shadow: 2px 0px 8px 2px #00000045;
+
+
+        .btn {
+            color: #FFFFFF;
+            border-radius: 5px;
+            border: none;
+            width: 100%;
+            background: linear-gradient(#8871E6 100%, #5C46B7 100%);
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: "Plus Jakarta Sans";
+        }
+    }
+
+    /* Medium devices (landscape tablets, 768px and up) */
+    @media only screen and (min-width: 768px) {
+        .added-to-cart-container {
+            position: absolute;
+            bottom: 0;
+            min-width: 768px;
+            max-width: 800px;
+            margin: auto;
+        }
+    }
+
+    #patients {
+        visibility: hidden;
+    }
+</style>
+
+<body>
+    <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div>
+    <header>
+        <div class="search-bar">
+            <div class="heading">Select Patient</div>
+        </div>
+    </header>
+
+    <div class="patients" id="shimmerDiv">
+        <div class="shimmer" style="min-height: 4rem;"></div>
+        <div class="shimmer" style="min-height: 4rem;"></div>
+        <div class="shimmer" style="min-height: 4rem;"></div>
+    </div>
+    <div class="patients" id="patients">
+        <button class="btn" onclick="addNew()">Add New</button>
+    </div>
+
+
+    <div class="added-to-cart-container">
+        <button class="btn" onclick="selectLocation()">Confirm</button>
+    </div>
+
+    <script>
+        var selectedPatient = 0;
+        fetchPatients();
+        function fetchPatients() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+
+
+            const uid = getCookie('uid');
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch("https://developer.dreamdevinfotech.com/jl-lab/patients.php?route=list_patients&uid=" + uid, requestOptions)
+                .then((response) => response.json())
+                .then((result) => showPatients(result.data))
+                .catch((error) => console.error(error));
+            document.getElementById('loader-overlay').style.display = 'none';
+
+        }
+        function showPatients(data) {
+            const container = document.getElementById('patients');
+
+            data.forEach(item => {
+                const patient = `
+                            <div class="patient" onclick="selectPatient(${item.id})">
+                                <div class="name" onclick="viewPatient(${item.id})">${item.name}</div>
+                                <input type="checkbox" class="checkboxes" onchange="selectPatient(${item.id})" name="" id="${item.id}">
+                            </div>`
+
+                var prev = container.innerHTML;
+                container.innerHTML = patient + prev;
+            });
+
+            document.getElementById('patients').style.visibility = 'visible';
+            document.getElementById('shimmerDiv').style.display = 'none';
+        }
+        function selectPatient(id) {
+            const boxes = document.querySelectorAll('.checkboxes');
+            boxes.forEach((box) => {
+                box.checked = false;
+            })
+            document.getElementById(id).checked = true;
+
+            if (document.getElementById(id).checked == true) {
+                selectedPatient = id;
+                // console.log(selectedPatient);
+            }
+
+        }
+        function addNew() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+            window.location.href = "patientdetails.html";
+        }
+        function viewPatient(id) {
+            document.getElementById('loader-overlay').style.display = 'flex';
+            setCookie('patient_id', id);
+            window.location.href = "viewpatient.html";
+        }
+        function selectLocation() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+            window.location.href = "location.html";
+        }
+    </script>
+</body>
+
+</html>

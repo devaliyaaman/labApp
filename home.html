@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="main.js"></script>
+
+</head>
+<style>
+
+</style>
+
+<body>
+    <div id="loader-overlay">
+        <div class="loading" id="loader"></div>
+    </div>
+    <header>
+        <nav class="navbar">
+            <div class="title">
+                <div class="blue">Dream</div>Lab
+            </div>
+            <button class="btn">Contact Support</button>
+        </nav>
+        <div class="search-bar">
+            <div class="search-box">
+                <input type="search" name="" id="" placeholder="Search for tests">
+                <img src="icons8-search-90 1.png" alt="">
+            </div>
+        </div>
+    </header>
+
+    <div class="heading">Choose Category</div>
+    <div class="category-container" id="shimmerDiv">
+        <div class="category-box shimmer" style="width: 5rem;margin:auto;min-height: 5rem;"></div>
+        <div class="category-box shimmer" style="width: 5rem;margin:auto;min-height: 5rem;"></div>
+        <div class="category-box shimmer" style="width: 5rem;margin:auto;min-height: 5rem;"></div>
+        <div class="category-box shimmer" style="width: 5rem;margin:auto;min-height: 5rem;"></div>
+        <div class="category-box shimmer" style="width: 5rem;margin:auto;min-height: 5rem;"></div>
+        <div class="category-box shimmer" style="width: 5rem;margin:auto;min-height: 5rem;"></div>
+    </div>
+    <div class="category-container" id="categoriesContainer"></div>
+
+
+    <div class="heading">How to Book?</div>
+
+
+    <script>
+
+        async function fetchCategory() {
+            document.getElementById('loader-overlay').style.display = 'block';
+
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch("https://developer.dreamdevinfotech.com/jl-lab/categories.php?route=list_categories", requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    // console.log(result);
+                    showCategories(result.data);
+                })
+                .catch((error) => console.error(error));
+        }
+        fetchCategory();
+        function showCategories(data) {
+            const container = document.getElementById('categoriesContainer');
+
+            data.forEach(item => {
+                const newCategory = `
+                <div class="category-box" onclick="openCategory(${item.id})">
+                    <div class="img"><img src=${item.icon} alt=""></div>
+                    <div class="icon-text">${item.name}</div>
+                </div>`
+
+                container.innerHTML += newCategory
+            });
+            document.getElementById('shimmerDiv').style.display = "none"
+            document.getElementById('categoriesContainer').style.visibility = "visible"
+            document.getElementById('loader-overlay').style.display = 'none';
+
+        }
+
+        function openCategory(id) {
+            document.getElementById('loader-overlay').style.display = "flex";
+            setCookie("category_id", id);
+            window.location.href = "categories.html";
+        }
+    </script>
+</body>
+
+</html>
